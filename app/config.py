@@ -1,0 +1,3 @@
+DEBUG = True
+
+TITLE = "prospal"
