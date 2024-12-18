@@ -1,58 +1,43 @@
 # app.py
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Date, Time
+from sqlalchemy import create_engine, Column, Integer, String, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
 Base = declarative_base()
 
-class Subject(Base):
-    __tablename__ = 'subject'
+class Schedule(Base):
+    __tablename__ = 'schedule'
     
     id = Column(Integer, primary_key=True)
-    subject_name = Column(String)
-
-    mains = relationship("Main", back_populates="subject")
-
-class Main(Base):
-    __tablename__ = 'main'
-    
-    id = Column(Integer, primary_key=True)
-    subject_id = Column(Integer, ForeignKey('subject.id'))
+    subject = Column(String)
     date = Column(Date)
     time = Column(String)
     location = Column(String)
 
-    subject = relationship("Subject", back_populates="mains")
-
 # Создаем базу данных
-engine = create_engine('sqlite:///../db/school_schedule.db')
-Base.metadata.create_all(engine)
-
-# Создаем сессию
+DATABASE_URL = 'sqlite:///db/school_schedule.db'
+engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
-def add_subject_and_schedule(subject_name, date, time, location):
-    session = Session()
-    new_subject = Subject(subject_name=subject_name)
-    session.add(new_subject)
-    session.commit()
+def init_db():
+    Base.metadata.create_all(engine)
 
-    new_schedule = Main(subject_id=new_subject.id, date=date, time=time, location=location)
-    session.add(new_schedule)
+def insert_schedule(schedule):
+    session = Session()
+    for day in schedule:
+        for event in day:
+            new_event = Schedule(
+                date=event['date'],
+                time=event['times'],
+                subject=event['subject'],
+                location=event['location']
+            )
+            session.add(new_event)
     session.commit()
     session.close()
 
-def get_schedule():
+def get_schedule_for_date(date):
     session = Session()
-    schedules = session.query(Main).all()
-    result = []
-    for schedule in schedules:
-        result.append({
-            "id": schedule.id,
-            "subject": schedule.subject.subject_name,
-            "date": str(schedule.date),
-            "time": str(schedule.time),
-            "location": schedule.location
-        })
+    events = session.query(Schedule).filter(Schedule.date == date).all()
     session.close()
-    return result
+    return events
