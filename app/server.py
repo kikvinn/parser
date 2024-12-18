@@ -1,25 +1,21 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from parser import parse_timetable, GROUP
 
 app = Flask(__name__)
-
-# Инициализация базы данных
-
 
 @app.route("/")
 def index():
     """Главная страница с данными из базы."""
     return render_template("index.html")
 
+@app.route("/parser", methods=['POST'])
+def parce():
+    day = request.form['date'] # return str
+    day = tuple(map(int, day.split('-')))
+    html = parse_timetable(day, GROUP)
+    
+    return jsonify(html)
 
-@app.route('/greet/<name>')
-def greet(name):
-    return f'Hello, {name}!'
-
-
-@app.route('/submit', methods=['POST'])
-def submit():
-    name = request.form['name']
-    return f'Hello, {name}'
 
 
 if __name__ == "__main__":

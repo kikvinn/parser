@@ -39,5 +39,3 @@ def parse_timetable(date: tuple, group: int):
             lessons.append({'date': sh_date, 'times': times, 'subject': subject, 'location': location})
         timetable.append(lessons)
     return timetable
-
-print(parse_timetable((2024, 12,18), GROUP)[0])

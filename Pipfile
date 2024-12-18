@@ -8,6 +8,7 @@ flask-sqlalchemy = "*"
 flask = "*"
 requests = "*"
 beautifulsoup4 = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 
